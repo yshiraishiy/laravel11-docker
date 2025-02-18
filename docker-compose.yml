@@ -1,0 +1,35 @@
+version: "3.9"
+services:
+  app:
+    build: ./infra/php
+    volumes:
+      - ./src:/data
+    working_dir: /data
+
+  web:
+    image: nginx:1.20-alpine
+    depends_on:
+      - app
+    ports:
+      - 8080:80
+    volumes:
+      - ./src:/data
+      - ./infra/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    working_dir: /data
+
+  db:
+    image: mysql:8.0
+    container_name: laravel11-docker-db-1
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: laravel
+      MYSQL_USER: laravel
+      MYSQL_PASSWORD: secret
+    ports:
+      - "3306:3306"
+    volumes:
+      - db-store:/var/lib/mysql
+
+volumes:
+  db-store:
